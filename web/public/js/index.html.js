@@ -305,9 +305,9 @@ function polarUsage() {
   // Initialize polar.
   $('.polar-usage').find('svg').remove();
   var svg = d3.select('.polar-usage').style({
-      height: height + 'px',
-      width: width + 'px'
-    }).append('svg')
+    height: height + 'px',
+    width: width + 'px'
+  }).append('svg')
     .attr('width', width)
     .attr('height', height)
     .append('g')
@@ -625,9 +625,9 @@ function updateProcsLayout(noAnimation) {
           });
 
         if (proc1 && proc2 &&
-          (proc1.pm2_env.status != proc2.pm2_env.status ||
-            proc1.pm2_env.pm_uptime != proc2.pm2_env.pm_uptime ||
-            proc1.pm2_env.restart_time != proc2.pm2_env.restart_time)) {
+          (proc1.monit.cpu != proc2.monit.cpu ||
+          getMem(proc1.monit.memory) != getMem(proc2.monit.memory) ||
+          proc1.pm2_env.restart_time != proc2.pm2_env.restart_time)) {
           ups.push(proc2);
         }
       });
@@ -668,7 +668,7 @@ function createProcs(_procs, noproc, noAnimation) {
     });
   });
   $(html).appendTo(eles.procs)
-    // Attach events of process.
+  // Attach events of process.
   attachProcEvents();
 
   // Flip in if necessary.
@@ -699,10 +699,11 @@ function createProcs(_procs, noproc, noAnimation) {
 /**
  * Update processes' layout.
  * @param {Array} _procs
- * @param {Boolean} noAnimation
+ * @param {Boolean} animated
  */
-function updateProcs(_procs, noAnimation) {
+function updateProcs(_procs, animated) {
   // Find elements and replace them new ones.
+  console.log('updateing: ', animated, _procs);
   eles.procs.find(_procs.map(function(p) {
     return '#proc_' + p.pm_id;
   }).join(',')).each(function(i) {
@@ -727,7 +728,7 @@ function updateProcs(_procs, noAnimation) {
 
     var ele = $(this);
     // Animate it or not.
-    if (!noAnimation) {
+    if (animated) {
       animate(ele, 'flipOutX', function() {
         ele.replaceWith(procEle);
         attachProcEvents();
